@@ -37,7 +37,7 @@
             method: "POST",
         });
         let prompt = await response.text();
-        document.getElementById("popup-here").innerHTML = `<div class="alert alert-info" role="alert">Use <pre class="mb-0">/tell Oauth ${prompt}</pre> on the character you would like to add as your alt.</div>`;
+        document.getElementById("popup-here").innerHTML = `<div class="alert alert-info" role="alert">Use <pre class="mb-0">/tell {{ bot_character }} ${prompt}</pre> on the character you would like to add as your alt.</div>`;
     };
 
     document.getElementById("delete-account").onclick = async (event) => {

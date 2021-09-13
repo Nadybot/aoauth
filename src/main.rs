@@ -43,7 +43,7 @@ use crate::{
     ao_bot::{CharacterQuery, Verifications},
     auth::{clean_up_intermittently, hash, verify, User},
     characters::Character,
-    config::PRIVATE_KEY,
+    config::{CONFIG, PRIVATE_KEY},
     templates::{
         ChooseTemplate, HtmlTemplate, IndexTemplate, LoginTemplate, ManageTemplate, SignupTemplate,
     },
@@ -179,6 +179,7 @@ async fn manage_account(
 
     let template = ManageTemplate {
         logged_in: true,
+        bot_character: CONFIG.bot_character.to_string(),
         characters,
     };
     HtmlTemplate(template)

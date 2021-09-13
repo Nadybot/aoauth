@@ -33,6 +33,7 @@ pub struct SignupTemplate {
 #[template(path = "manage.html")]
 pub struct ManageTemplate {
     pub logged_in: bool,
+    pub bot_character: String,
     pub characters: Vec<Character>,
 }
 
