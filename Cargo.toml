@@ -1,0 +1,44 @@
+[package]
+name = "aoauth"
+version = "0.1.0"
+authors = ["Jens Reidel <adrian@travitia.xyz>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+argon2 = "0.3"
+askama = { version = "0.10", default-features = false }
+async-session = "3.0"
+async-sqlx-session = { version = "0.4", default-features = false, features = ["sqlite"] }
+axum = { git = "https://github.com/tokio-rs/axum.git", default-features = false, features = ["headers"] }
+chrono = "0.4"
+dashmap = "4.0"
+headers = "0.3"
+jsonwebtoken = "7.2"
+log = "0.4"
+nadylib = { git = "https://github.com/Nadybot/nadylib.git" }
+rand = "0.8"
+rand_core = { version = "0.6", features = ["std"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_urlencoded = "0.7"
+sqlx = { version = "0.5", default-features = false, features = [
+    "macros",
+    "migrate",
+    "runtime-tokio-rustls",
+    "sqlite"
+] }
+tokio = { version = "1", default-features = false, features = [
+    "rt-multi-thread"
+] }
+tower-http = { version = "0.1", features = ["fs", "trace"] }
+tracing = "0.1"
+tracing-subscriber = "0.2"
+
+[profile.release]
+codegen-units = 1
+debug = false
+incremental = false
+lto = true
+opt-level = 3
+panic = "abort"

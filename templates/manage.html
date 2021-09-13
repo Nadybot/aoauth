@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your registered characters</h2>
+
+<div class="table-responsive">
+    <table class="table mt-3 mb-5">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="w-50">Name</th>
+                <th scope="col" class="w-50">ID</th>
+                <th scope="col">Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for character in characters %}
+            <tr>
+                <td>{{ character.name }}</td>
+                <td>{{ character.id }}</td>
+                <td><button type="button" class="btn btn-danger float-end" id="{{ character.id }}"
+                        onclick="deleteCharacter({{ character.id }})">🗑</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="popup-here">
+</div>
+
+<button type="button" class="btn btn-primary" id="submit-character">Verify a new character</button>
+<button type="button" class="btn btn-danger" id="delete-account">Delete my account</button>
+
+<script>
+    document.getElementById("submit-character").onclick = async (event) => {
+        let response = await fetch("/add-character", {
+            method: "POST",
+        });
+        let prompt = await response.text();
+        document.getElementById("popup-here").innerHTML = `<div class="alert alert-info" role="alert">Use <pre class="mb-0">/tell Oauth ${prompt}</pre> on the character you would like to add as your alt.</div>`;
+    };
+
+    document.getElementById("delete-account").onclick = async (event) => {
+        let response = await fetch("/delete-account", {
+            method: "POST",
+        });
+        window.location = "/";
+    };
+
+    async function deleteCharacter(id) {
+        document.getElementById(id.toString()).parentElement.parentElement.remove();
+        let response = await fetch("/delete-character", {
+            method: "POST",
+            headers: [["Content-Type", "application/json"]],
+            body: `{"id": ${id}}`,
+            redirect: "follow",
+        });
+    }
+</script>
+{% endblock %}

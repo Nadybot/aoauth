@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Welcome to aoauth!</h2>
+
+<p>aoauth is a service that allows you to register a list of your characters in Anarchy Online, validate them with an
+    in-game bot and later sign in to websites as one of these characters using JWT (JSON Web Tokens).</p>
+
+<p>You can pretty much think of this as a "Login with Google" option, but it uses Anarchy Online instead.</p>
+
+<p>You can find the source code for aoauth <a href="https://github.com/Nadybot/aoauth">here</a>.</p>
+
+<p>For clients: Redirect your users to <a
+        href="https://aoauth.org/auth?redirect_uri=http://my-server/callback&application_name=My+website">https://aoauth.org/authorize?redirect_uri=http://my-server/callback&application_name=My+website</a>.
+    They will then be prompted to log in, if they haven't already, and then select a character to authenticate with.
+    After that, they are redirected to your specified "redirect_uri" with a
+    "_aoauth_token" query string parameter that is a signed JWT token containing the character and expiry for this token. It
+    is signed with ECDSA using SHA-256 and our public key:
+<pre>{{ public_key }}</pre>Make sure to validate it!</pre></a></p>
+{% endblock %}

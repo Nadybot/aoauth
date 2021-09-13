@@ -1,0 +1,5 @@
+/target
+keys/*.pem
+aoauth.db
+aoauth.db*
+config.json

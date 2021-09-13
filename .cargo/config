@@ -1,0 +1,21 @@
+rustflags = ["-Z", "mir-opt-level=3"]
+
+[unstable]
+build-std = ["std", "panic_abort"]
+#build-std-features = ["panic_immediate_abort"]
+
+[target.aarch64-unknown-linux-musl]
+linker = "aarch64-linux-musl-ld"
+
+[target.armv7-unknown-linux-musleabihf]
+linker = "armv7l-linux-musleabihf-ld"
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+
+[target.armv7-unknown-linux-gnueabihf]
+linker = "arm-linux-gnueabihf-gcc"
+
+[target.x86_64-unknown-freebsd]
+linker = "clang"
+rustflags = ["-C", "link-args=--sysroot=./freebsd_sysroot --target=x86_64-unknown-freebsd12"]
