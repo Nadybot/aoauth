@@ -12,7 +12,7 @@ touch aoauth.db
 cd keys
 ./generate.sh
 cd ..
-podman run --rm -it -p 4114:4114 -v $(pwd)/aopkg.db:/aopkg.db:Z -v $(pwd)/keys:/keys:Z -e BOT_USERNAME="abc" -e BOT_PASSWORD="def" -e BOT_PASSWORD="ghi" quay.io/gelbpunkt/aoauth:latest
+podman run --rm -it -p 4114:4114 -v $(pwd)/aoauth.db:/aoauth.db:Z -v $(pwd)/keys:/keys:Z -e BOT_USERNAME="abc" -e BOT_PASSWORD="def" -e BOT_PASSWORD="ghi" quay.io/gelbpunkt/aoauth:latest
 ```
 
 ## Flow
