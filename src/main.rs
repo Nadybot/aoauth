@@ -60,17 +60,13 @@ async fn run() {
         set_var("RUST_LOG", "INFO");
     }
 
-    let path = Path::new("aoauth.db");
-    if !path.exists() {
-        File::create(path).expect("Failed to create empty db file");
-    }
-
     tracing_subscriber::fmt::init();
 
     // Initialize Sqlite DB
     let m = Migrator::new(Path::new("./migrations")).await.unwrap();
 
-    let mut options = SqliteConnectOptions::new().filename("aoauth.db");
+    let mut options = SqliteConnectOptions::new()
+        .filename(&var("DATABASE_FILE").unwrap_or_else(|_| String::from("aoauth.db")));
     options.log_statements(LevelFilter::Debug);
     let pool = SqlitePoolOptions::new()
         .connect_with(options)
