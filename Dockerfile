@@ -70,6 +70,7 @@ RUN apk update && \
 FROM scratch
 
 COPY migrations /migrations
+COPY assets /assets
 COPY --from=dumb-init /dumb-init /dumb-init
 COPY --from=builder /aoauth /aoauth
 COPY --from=builder /keys /keys
