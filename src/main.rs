@@ -3,7 +3,6 @@
 use std::{
     convert::Infallible,
     env::{set_var, var},
-    fs::File,
     net::SocketAddr,
     path::Path,
     sync::Arc,
@@ -21,7 +20,7 @@ use axum::{
     response::IntoResponse,
     service, AddExtensionLayer, Json, Router,
 };
-use chrono::Utc;
+use chrono::{Duration as ChronoDuration, Utc};
 use config::PUBLIC_KEY;
 use dashmap::DashMap;
 use headers::Cookie;
@@ -113,6 +112,8 @@ async fn run() {
         .boxed()
         .route("/", get(root))
         .boxed()
+        .route("/key", get(show_key))
+        .boxed()
         .route("/logout", get(logout))
         .boxed()
         .route("/login", get(login_show).post(login))
@@ -158,6 +159,10 @@ async fn root(maybe_user_id: MaybeUserIdFromSession) -> impl IntoResponse {
         public_key: PUBLIC_KEY.to_string(),
     };
     HtmlTemplate(template)
+}
+
+async fn show_key() -> impl IntoResponse {
+    PUBLIC_KEY.to_string()
 }
 
 async fn manage_account(
@@ -412,10 +417,16 @@ async fn create_account(
     let mut session = Session::new();
     session.insert("user_id", user.id).unwrap();
     let cookie = store.store_session(session).await.unwrap().unwrap();
+    let expires = Utc::now() + ChronoDuration::days(30);
+    let cookie_string = format!(
+        "session={}; expires={}",
+        cookie,
+        expires.format("%a, %d %b %Y %T GMT")
+    );
 
     Response::builder()
         .status(StatusCode::OK)
-        .header(header::SET_COOKIE, format!("session={}", cookie))
+        .header(header::SET_COOKIE, cookie_string)
         .body(Empty::new())
         .unwrap()
 }
@@ -458,10 +469,16 @@ async fn login(
             let mut session = Session::new();
             session.insert("user_id", user.id).unwrap();
             let cookie = store.store_session(session).await.unwrap().unwrap();
+            let expires = Utc::now() + ChronoDuration::days(30);
+            let cookie_string = format!(
+                "session={}; expires={}",
+                cookie,
+                expires.format("%a, %d %b %Y %T GMT")
+            );
 
             Response::builder()
                 .status(StatusCode::OK)
-                .header(header::SET_COOKIE, format!("session={}", cookie))
+                .header(header::SET_COOKIE, cookie_string)
                 .body(Empty::new())
                 .unwrap()
         } else {
