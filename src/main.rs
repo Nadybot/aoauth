@@ -26,7 +26,6 @@ use dashmap::DashMap;
 use headers::Cookie;
 use jsonwebtoken::{encode, Algorithm, Header};
 use log::LevelFilter;
-use nadylib::{AOSocket, SocketConfig};
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use serde::Deserialize;
 use serde_json::json;
@@ -35,7 +34,7 @@ use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     ConnectOptions, SqlitePool,
 };
-use tokio::{runtime::Runtime, spawn};
+use tokio::{spawn, sync::mpsc::unbounded_channel};
 use tower_http::{services::ServeDir, trace::TraceLayer};
 
 use crate::{
@@ -54,7 +53,8 @@ mod characters;
 mod config;
 mod templates;
 
-async fn run() {
+#[tokio::main]
+async fn main() {
     if var("RUST_LOG").is_err() {
         set_var("RUST_LOG", "INFO");
     }
@@ -83,13 +83,11 @@ async fn run() {
     let verifications: Verifications = Arc::new(DashMap::new());
 
     // Start the AO bot
-    let socket = AOSocket::connect("chat.d1.funcom.com:7105", SocketConfig::default())
-        .await
-        .unwrap();
-    let sender = socket.get_sender();
+
+    let (sender, receiver) = unbounded_channel();
     let queries = Arc::new(DashMap::new());
     spawn(ao_bot::run(
-        socket,
+        receiver,
         verifications.clone(),
         pool.clone(),
         queries.clone(),
@@ -493,8 +491,4 @@ async fn login(
             .body(Empty::new())
             .unwrap()
     }
-}
-
-fn main() {
-    Runtime::new().unwrap().block_on(run());
 }

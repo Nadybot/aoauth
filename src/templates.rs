@@ -46,7 +46,6 @@ pub struct ChooseTemplate {
     pub characters: Vec<Character>,
 }
 
-
 pub struct HtmlTemplate<T>(pub T);
 
 impl<T> IntoResponse for HtmlTemplate<T>
