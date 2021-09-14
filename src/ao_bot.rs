@@ -11,6 +11,7 @@ use nadylib::{
 };
 use sqlx::SqlitePool;
 use tokio::{
+    net::TcpStream,
     sync::{
         mpsc::{UnboundedReceiver as MpscReceiver, UnboundedSender as MpscSender},
         oneshot::{channel as oneshot_channel, Sender as OneshotSender},
@@ -47,6 +48,12 @@ impl CharacterQuery {
     }
 }
 
+async fn wait_server_ready(addr: &str) {
+    while TcpStream::connect(addr).await.is_err() {
+        sleep(Duration::from_secs(10)).await;
+    }
+}
+
 pub async fn run(
     mut receiver: MpscReceiver<SerializedPacket>,
     verifications: Verifications,
@@ -56,6 +63,9 @@ pub async fn run(
     let mut connected = false;
 
     'connect_loop: loop {
+        tracing::info!("Waiting for chat server to be available");
+        wait_server_ready("chat.d1.funcom.com:7105").await;
+
         let mut socket = AOSocket::connect("chat.d1.funcom.com:7105", SocketConfig::default())
             .await
             .unwrap();
