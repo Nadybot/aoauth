@@ -1,16 +1,16 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <h2>Authorize with "{{ application_name }}"</h2>
 
 <form action="/confirm-auth" method="GET">
-<input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
-<select class="form-select" name="character" aria-label="Select a character">
+  <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}" />
+  <select class="form-select" name="character" aria-label="Select a character">
     {% for character in characters %}
     <option value="{{ character.name }}">{{ character.name }}</option>
     {% endfor %}
-</select>
+  </select>
 
-<button type="submit" class="btn btn-primary mt-3" id="submit-character">Authorize as this character</button>
+  <button type="submit" class="btn btn-primary mt-3" id="submit-character">
+    Authorize as this character
+  </button>
 </form>
 {% endblock %}

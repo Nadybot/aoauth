@@ -98,6 +98,8 @@ async fn main() {
     };
 
     let app = Router::new()
+        .layer(TraceLayer::new_for_http())
+        .boxed()
         .nest(
             "/assets",
             service::get(ServeDir::new("assets")).handle_error(|error: std::io::Error| {
@@ -137,8 +139,6 @@ async fn main() {
         .layer(AddExtensionLayer::new(verifications))
         .boxed()
         .layer(AddExtensionLayer::new(lookup))
-        .boxed()
-        .layer(TraceLayer::new_for_http())
         .boxed();
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 4114));

@@ -1,34 +1,45 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div id="popup-here">
-</div>
+{% extends "base.html" %} {% block content %}
+<div id="popup-here"></div>
 
 <h1 class="display-5">Login to aoauth</h1>
 <div class="input-group mb-3">
-    <span class="input-group-text">Username</span>
-    <input type="text" id="username" class="form-control" placeholder="Username" aria-label="Username">
+  <span class="input-group-text">Username</span>
+  <input
+    type="text"
+    id="username"
+    class="form-control"
+    placeholder="Username"
+    aria-label="Username"
+  />
 </div>
 <div class="input-group mb-3">
-    <span class="input-group-text">Password</span>
-    <input type="password" id="password" class="form-control" placeholder="Password" aria-label="Password">
+  <span class="input-group-text">Password</span>
+  <input
+    type="password"
+    id="password"
+    class="form-control"
+    placeholder="Password"
+    aria-label="Password"
+  />
 </div>
 <button class="btn btn-primary" id="submit">Login</button>
 
 <script>
-    document.getElementById("submit").onclick = async (event) => {
-        let username = document.getElementById("username").value;
-        let password = document.getElementById("password").value;
-        let response = await fetch("/login", {
-            method: "POST",
-            headers: [["Content-Type", "application/json"]],
-            body: `{"username": "${username}", "password": "${password}"}`,
-        });
-        if (response.status == 200) {
-            window.location = "{{ redirect_uri }}";
-        } else if (response.status == 401) {
-            document.getElementById("popup-here").innerHTML = `<div class="alert alert-danger" role="alert">Login failed, credentials invalid.</div>`;
-        }
+  document.getElementById("submit").onclick = async (event) => {
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+    let response = await fetch("/login", {
+      method: "POST",
+      headers: [["Content-Type", "application/json"]],
+      body: `{"username": "${username}", "password": "${password}"}`,
+    });
+    if (response.status == 200) {
+      window.location = "{{ redirect_uri }}";
+    } else if (response.status == 401) {
+      document.getElementById(
+        "popup-here"
+      ).innerHTML = `<div class="alert alert-danger" role="alert">Login failed, credentials invalid.</div>`;
     }
+  };
 </script>
 {% endblock %}
