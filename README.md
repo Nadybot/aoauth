@@ -61,6 +61,15 @@ export CARGO_BUILD_TARGET=$(rustup target list --installed)
 cargo build --release
 ```
 
+You'll have to generate encryption keys:
+
+```bash
+cd keys
+# Generate a new private a public key pair using OpenSSL
+./generate.sh
+cd ..
+```
+
 Next, you need to copy the example config file and fill it out:
 
 ```bash
