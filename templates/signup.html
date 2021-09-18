@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <div id="popup-here"></div>
 
-<h1 class="display-5">Sign up for aoauth</h1>
+<h2>Sign up for aoauth</h2>
 <div class="input-group mb-3">
   <span class="input-group-text">Username</span>
   <input
@@ -35,7 +35,7 @@
 <button class="btn btn-primary" id="submit">Sign up</button>
 
 <script>
-  document.getElementById("submit").onclick = async (event) => {
+  async function submit() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
     let password_repeat = document.getElementById("password-repeat").value;
@@ -58,6 +58,13 @@
       document.getElementById(
         "popup-here"
       ).innerHTML = `<div class="alert alert-danger" role="alert">Username is taken.</div>`;
+    }
+  }
+
+  document.getElementById("submit").onclick = submit;
+  document.getElementById("password-repeat").onkeydown = function (event) {
+    if (event.keyCode === 13) {
+      submit();
     }
   };
 </script>

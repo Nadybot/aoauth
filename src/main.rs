@@ -239,21 +239,7 @@ async fn finish_authorization(
         .unwrap();
 
         if let Some(character) = character {
-            if character.id != character_id as i64 {
-                sqlx::query!(
-                    r#"DELETE FROM characters WHERE "user_id"=? AND "name"=?;"#,
-                    user_id.0,
-                    parameters.character,
-                )
-                .execute(&pool)
-                .await
-                .unwrap();
-
-                Response::builder()
-                    .status(StatusCode::UNAUTHORIZED)
-                    .body(Empty::new())
-                    .unwrap()
-            } else {
+            if character.id == i64::from(character_id) {
                 let expiry = Utc::now().timestamp() + 60 * 60 * 24 * 30; // 30 days
                 let claims =
                     json!({"sub": {"name": character.name, "id": character.id}, "exp": expiry});
@@ -265,6 +251,20 @@ async fn finish_authorization(
                         "Location",
                         format!("{}?_aoauth_token={}", parameters.redirect_uri, encrypted),
                     )
+                    .body(Empty::new())
+                    .unwrap()
+            } else {
+                sqlx::query!(
+                    r#"DELETE FROM characters WHERE "user_id"=? AND "name"=?;"#,
+                    user_id.0,
+                    parameters.character,
+                )
+                .execute(&pool)
+                .await
+                .unwrap();
+
+                Response::builder()
+                    .status(StatusCode::UNAUTHORIZED)
                     .body(Empty::new())
                     .unwrap()
             }
@@ -303,11 +303,10 @@ async fn add_character(
         .collect();
     verifications.insert(verification_prompt.clone(), user_id.0);
 
-    let verifications_copy = verifications.clone();
     let verification_prompt_copy = verification_prompt.clone();
     tokio::task::spawn(async move {
         tokio::time::sleep(Duration::from_secs(60 * 10)).await;
-        verifications_copy.remove(&verification_prompt_copy);
+        verifications.remove(&verification_prompt_copy);
     });
 
     verification_prompt

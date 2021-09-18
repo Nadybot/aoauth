@@ -1,10 +1,12 @@
 # aoauth
 
-aoauth is a JWT-based authentication provider for Anarchy Online. A pre-hosted version is available at [https://aoauth.org](https://aoauth.org).
+aoauth is a JWT-based authentication provider for Anarchy Online. A pre-hosted version is available at <https://aoauth.org>.
 
 ## Running
 
 You can run aoauth yourself either inside a container or outside of one, but you should be running it on a Linux-based operating system. I haven't tested running this on Windows or MacOS, it might work, but it might as well not work.
+
+No matter how you run it, after starting it, you can access aoauth at <http://localhost:4114>.
 
 ### Using a container
 
@@ -116,7 +118,7 @@ The JWT has another part attached to it, the signature. This is essentially a bu
 
 ## HowTo for developers
 
-Redirect your users to [https://aoauth.org/auth?redirect_uri=http://my-server/callback&application_name=My+website](https://aoauth.org/authorize?redirect_uri=http://my-server/callback&application_name=My+website), replacing `application_name` with the name of your website.
+Redirect your users to <https://aoauth.org/auth?redirect_uri=http://my-server/callback&application_name=My+website>, replacing `application_name` with the name of your website.
 
 They will then be prompted to log in, if they haven't already, and then select a character to authenticate with.
 
