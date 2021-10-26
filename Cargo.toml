@@ -7,11 +7,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 argon2 = "0.3"
-askama = { version = "0.10", default-features = false }
+askama = { git = "https://github.com/djc/askama.git", default-features = false }
 async-session = "3.0"
 async-sqlx-session = { version = "0.4", default-features = false, features = ["sqlite"] }
 axum = { git = "https://github.com/tokio-rs/axum.git", branch = "main", default-features = false, features = ["headers", "json", "http1"] }
-chrono = "0.4"
 dashmap = "4.0"
 headers = "0.3"
 jsonwebtoken = "7.2"

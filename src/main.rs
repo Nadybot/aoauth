@@ -9,18 +9,18 @@ use std::{
     time::Duration,
 };
 
-use async_session::{Session, SessionStore};
+use async_session::{chrono::Utc, Session, SessionStore};
 use async_sqlx_session::SqliteSessionStore;
 use auth::{MaybeUserIdFromSession, UserIdFromSession};
 use axum::{
     body::Empty,
+    error_handling::HandleErrorExt,
     extract::{Extension, Query, TypedHeader},
-    handler::{get, post},
     http::{header, Response, StatusCode},
     response::IntoResponse,
-    service, AddExtensionLayer, Json, Router,
+    routing::{get, post, service_method_router as service},
+    AddExtensionLayer, Json, Router,
 };
-use chrono::{Duration as ChronoDuration, Utc};
 use config::PUBLIC_KEY;
 use dashmap::DashMap;
 use headers::Cookie;
@@ -52,6 +52,8 @@ mod auth;
 mod characters;
 mod config;
 mod templates;
+
+const SESSION_DURATION_SECONDS: i64 = 60 * 60 * 24 * 30;
 
 #[tokio::main]
 async fn main() {
@@ -99,7 +101,6 @@ async fn main() {
 
     let app = Router::new()
         .layer(TraceLayer::new_for_http())
-        .boxed()
         .nest(
             "/assets",
             service::get(ServeDir::new("assets")).handle_error(|error: std::io::Error| {
@@ -109,37 +110,21 @@ async fn main() {
                 ))
             }),
         )
-        .boxed()
         .route("/", get(root))
-        .boxed()
         .route("/key", get(show_key))
-        .boxed()
         .route("/logout", get(logout))
-        .boxed()
         .route("/login", get(login_show).post(login))
-        .boxed()
         .route("/signup", get(create_account_show).post(create_account))
-        .boxed()
         .route("/delete-account", post(delete_account))
-        .boxed()
         .route("/manage", get(manage_account))
-        .boxed()
         .route("/auth", get(authorize_application))
-        .boxed()
         .route("/confirm-auth", get(finish_authorization))
-        .boxed()
         .route("/add-character", post(add_character))
-        .boxed()
         .route("/delete-character", post(delete_character))
-        .boxed()
         .layer(AddExtensionLayer::new(pool))
-        .boxed()
         .layer(AddExtensionLayer::new(store))
-        .boxed()
         .layer(AddExtensionLayer::new(verifications))
-        .boxed()
-        .layer(AddExtensionLayer::new(lookup))
-        .boxed();
+        .layer(AddExtensionLayer::new(lookup));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 4114));
 
@@ -240,7 +225,7 @@ async fn finish_authorization(
 
         if let Some(character) = character {
             if character.id == i64::from(character_id) {
-                let expiry = Utc::now().timestamp() + 60 * 60 * 24 * 30; // 30 days
+                let expiry = Utc::now().timestamp() + SESSION_DURATION_SECONDS; // 30 days
                 let claims =
                     json!({"sub": {"name": character.name, "id": character.id}, "exp": expiry});
                 let encrypted =
@@ -414,12 +399,7 @@ async fn create_account(
     let mut session = Session::new();
     session.insert("user_id", user.id).unwrap();
     let cookie = store.store_session(session).await.unwrap().unwrap();
-    let expires = Utc::now() + ChronoDuration::days(30);
-    let cookie_string = format!(
-        "session={}; expires={}",
-        cookie,
-        expires.format("%a, %d %b %Y %T GMT")
-    );
+    let cookie_string = format!("session={}; Max-Age=900; Secure", cookie,);
 
     Response::builder()
         .status(StatusCode::OK)
@@ -466,12 +446,8 @@ async fn login(
             let mut session = Session::new();
             session.insert("user_id", user.id).unwrap();
             let cookie = store.store_session(session).await.unwrap().unwrap();
-            let expires = Utc::now() + ChronoDuration::days(30);
-            let cookie_string = format!(
-                "session={}; expires={}",
-                cookie,
-                expires.format("%a, %d %b %Y %T GMT")
-            );
+            let cookie_string =
+                format!("session={}; Max-Age={};", cookie, SESSION_DURATION_SECONDS);
 
             Response::builder()
                 .status(StatusCode::OK)
