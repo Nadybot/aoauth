@@ -14,11 +14,10 @@ use async_sqlx_session::SqliteSessionStore;
 use auth::{MaybeUserIdFromSession, UserIdFromSession};
 use axum::{
     body::Empty,
-    error_handling::HandleErrorExt,
     extract::{Extension, Query, TypedHeader},
     http::{header, Response, StatusCode},
     response::IntoResponse,
-    routing::{get, post, service_method_router as service},
+    routing::{get, get_service, post},
     AddExtensionLayer, Json, Router,
 };
 use config::PUBLIC_KEY;
@@ -103,7 +102,7 @@ async fn main() {
         .layer(TraceLayer::new_for_http())
         .nest(
             "/assets",
-            service::get(ServeDir::new("assets")).handle_error(|error: std::io::Error| {
+            get_service(ServeDir::new("assets")).handle_error(|error: std::io::Error| async move {
                 Ok::<_, Infallible>((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     format!("Unhandled internal error: {}", error),
